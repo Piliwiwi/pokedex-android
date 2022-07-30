@@ -7,5 +7,5 @@ import com.arech.pokedex.pokemon.list.data.remote.model.RemotePokemonResponse
  */
 
 interface PokemonListRemote {
-    suspend fun getPokemonList() : RemotePokemonResponse
+    suspend fun getPokemonList(offset: Int, limit: Int) : RemotePokemonResponse
 }

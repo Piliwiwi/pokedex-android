@@ -11,5 +11,5 @@ import javax.inject.Inject
 class PokemonListRemoteImpl @Inject constructor(
     private val api: PokemonListWebService
 ) : PokemonListRemote {
-    override suspend fun getPokemonList() = api.getPokemonList()
+    override suspend fun getPokemonList(offset: Int, limit: Int) = api.getPokemonList(offset, limit)
 }

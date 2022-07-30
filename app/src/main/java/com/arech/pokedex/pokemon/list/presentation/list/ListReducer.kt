@@ -3,6 +3,7 @@ package com.arech.pokedex.pokemon.list.presentation.list
 import com.arech.mvi.MviReducer
 import com.arech.mvi.exception.UnsupportedReduceException
 import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult
+import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult.Complete
 import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult.InProgress
 import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult.Success
 import com.arech.pokedex.pokemon.list.presentation.list.ListUiState.DefaultUiState
@@ -43,11 +44,18 @@ class ListReducer @Inject constructor() : MviReducer<ListUiState, ListResult> {
         return when (result) {
             LoadPokemonListResult.Error -> ErrorUiState
             is Success -> ShowPokemonsUiState(result.pokemons)
+            is Complete -> ShowPokemonsUiState(result.pokemon)
             else -> throw UnsupportedReduceException(this, result)
         }
     }
 
     private infix fun ShowPokemonsUiState.reduceWith(result: ListResult): ListUiState {
-        throw UnsupportedReduceException(this, result)
+        return when (result) {
+            LoadPokemonListResult.Error -> ErrorUiState
+            InProgress -> LoadingUiState
+            is Complete -> this
+            is Success -> ShowPokemonsUiState(result.pokemons)
+            else -> throw UnsupportedReduceException(this, result)
+        }
     }
 }

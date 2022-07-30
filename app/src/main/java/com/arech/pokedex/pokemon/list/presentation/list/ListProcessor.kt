@@ -22,13 +22,32 @@ class ListProcessor @Inject constructor(
             LoadPokemonListAction -> loadPokemonProcessor()
         }
 
+    private fun load(): Flow<ListResult> {
+        return loadPokemonProcessor()
+            .buffer()
+            .transform {
+                emit(it)
+            }.catch {
+                emit(Error)
+            }.flowOn(executionThread.ioThread())
+    }
+
     private fun loadPokemonProcessor() = flow<ListResult> {
-        repository.getPokemonList().collect { response ->
-            val pokemons = with(mapper) { response.toPresentation() }.orEmpty()
+        repository.savePokemons()
+        repository.getLocalPokemon().collect { response ->
+            //response.collect {
+            val pokemons = with(mapper) { response.toPresentation() }
             emit(Success(pokemons))
+            //}
         }
     }.onStart {
         emit(InProgress)
+    }.catch {
+        emit(Error)
+    }.flowOn(executionThread.ioThread())
+
+    private fun obtainPokemonProcessor() = flow<ListResult> {
+        repository.savePokemons()
     }.catch {
         emit(Error)
     }.flowOn(executionThread.ioThread())

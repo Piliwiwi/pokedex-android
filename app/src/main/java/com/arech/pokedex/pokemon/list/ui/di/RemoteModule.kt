@@ -2,8 +2,10 @@ package com.arech.pokedex.pokemon.list.ui.di
 
 import com.arech.network.config.NetworkDependencies
 import com.arech.network.retrofit.WebServiceFactory
+import com.arech.pokedex.pokemon.list.data.local.PokemonListLocalImpl
 import com.arech.pokedex.pokemon.list.data.remote.PokemonListRemoteImpl
 import com.arech.pokedex.pokemon.list.data.remote.retrofit.PokemonListWebService
+import com.arech.pokedex.pokemon.list.data.source.PokemonListLocal
 import com.arech.pokedex.pokemon.list.data.source.PokemonListRemote
 import dagger.Binds
 import dagger.Module

@@ -6,12 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.arech.mvi.MviUi
+import com.arech.mvi.MviUiEffect
 import com.arech.pokedex.databinding.FragmentPokemonListBinding
 import com.arech.pokedex.pokemon.list.presentation.ListViewModel
 import com.arech.pokedex.pokemon.list.presentation.list.ListUIntent
 import com.arech.pokedex.pokemon.list.presentation.list.ListUIntent.InitialUIntent
+import com.arech.pokedex.pokemon.list.presentation.list.ListUiEffect
+import com.arech.pokedex.pokemon.list.presentation.list.ListUiEffect.ShowMorePokemons
 import com.arech.pokedex.pokemon.list.presentation.list.ListUiState
 import com.arech.pokedex.pokemon.list.presentation.list.ListUiState.*
 import com.arech.pokedex.pokemon.list.presentation.list.model.Pokemon
@@ -27,10 +31,12 @@ import kotlinx.coroutines.flow.*
 @AndroidEntryPoint
 @FlowPreview
 @ExperimentalCoroutinesApi
-class ListFragment : Fragment(), MviUi<ListUIntent, ListUiState> {
+class ListFragment : Fragment(), MviUi<ListUIntent, ListUiState>, MviUiEffect<ListUiEffect> {
     private var binding: FragmentPokemonListBinding? = null
 
     private val viewModel: ListViewModel by viewModels()
+
+    val livePokemons: MutableLiveData<List<Pokemon>> = MutableLiveData()
 
     private val userIntents: MutableSharedFlow<ListUIntent> = MutableSharedFlow()
 
@@ -88,6 +94,16 @@ class ListFragment : Fragment(), MviUi<ListUIntent, ListUiState> {
     }
 
     private fun showPokemons(pokemons: List<Pokemon>) = binding?.apply {
+        uniqueText.text = "La lista de los pokemons es:\n\n ${pokemons.map { it.name }}"
+    }
+
+    override fun handleEffect(uiEffect: ListUiEffect) {
+        when (uiEffect) {
+            is ShowMorePokemons -> showMorePokemons(uiEffect.pokemons)
+        }
+    }
+
+    private fun showMorePokemons(pokemons: List<Pokemon>) = binding?.apply {
         uniqueText.text = "La lista de los pokemons es:\n\n ${pokemons.map { it.name }}"
     }
 
