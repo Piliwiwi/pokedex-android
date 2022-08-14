@@ -11,5 +11,6 @@ sealed class ListUiState : MviUiState {
     object DefaultUiState : ListUiState()
     object LoadingUiState : ListUiState()
     object ErrorUiState : ListUiState()
+    object EmptyUiState : ListUiState()
     data class ShowPokemonsUiState(val pokemons: List<Pokemon>) : ListUiState()
 }

@@ -12,6 +12,7 @@ sealed class ListResult : MviResult {
         object InProgress : LoadPokemonListResult()
         object Error : LoadPokemonListResult()
         data class Complete(val pokemon: List<Pokemon>) : LoadPokemonListResult()
+        object Empty : LoadPokemonListResult()
         data class Success(val pokemons: List<Pokemon>) : LoadPokemonListResult()
     }
 }

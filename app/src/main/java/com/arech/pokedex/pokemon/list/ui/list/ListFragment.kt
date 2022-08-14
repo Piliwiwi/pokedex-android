@@ -82,7 +82,12 @@ class ListFragment : Fragment(), MviUi<ListUIntent, ListUiState>, MviUiEffect<Li
             ErrorUiState -> showError()
             LoadingUiState -> showLoading()
             is ShowPokemonsUiState -> showPokemons(uiStates.pokemons)
+            EmptyUiState -> showEmpty()
         }
+    }
+
+    private fun showEmpty() = binding?.apply {
+        uniqueText.text = "No hay pakimanss oh no"
     }
 
     private fun showError() = binding?.apply {

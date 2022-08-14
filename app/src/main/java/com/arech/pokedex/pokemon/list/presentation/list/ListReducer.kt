@@ -4,9 +4,11 @@ import com.arech.mvi.MviReducer
 import com.arech.mvi.exception.UnsupportedReduceException
 import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult
 import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult.Complete
+import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult.Empty
 import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult.InProgress
 import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonListResult.Success
 import com.arech.pokedex.pokemon.list.presentation.list.ListUiState.DefaultUiState
+import com.arech.pokedex.pokemon.list.presentation.list.ListUiState.EmptyUiState
 import com.arech.pokedex.pokemon.list.presentation.list.ListUiState.ErrorUiState
 import com.arech.pokedex.pokemon.list.presentation.list.ListUiState.LoadingUiState
 import com.arech.pokedex.pokemon.list.presentation.list.ListUiState.ShowPokemonsUiState
@@ -23,6 +25,7 @@ class ListReducer @Inject constructor() : MviReducer<ListUiState, ListResult> {
             is ErrorUiState -> currentState reduceWith result
             is LoadingUiState -> currentState reduceWith result
             is ShowPokemonsUiState -> currentState reduceWith result
+            is EmptyUiState -> currentState reduceWith result
         }
     }
 
@@ -44,12 +47,23 @@ class ListReducer @Inject constructor() : MviReducer<ListUiState, ListResult> {
         return when (result) {
             LoadPokemonListResult.Error -> ErrorUiState
             is Success -> ShowPokemonsUiState(result.pokemons)
+            is Empty -> EmptyUiState
             is Complete -> ShowPokemonsUiState(result.pokemon)
             else -> throw UnsupportedReduceException(this, result)
         }
     }
 
     private infix fun ShowPokemonsUiState.reduceWith(result: ListResult): ListUiState {
+        return when (result) {
+            LoadPokemonListResult.Error -> ErrorUiState
+            InProgress -> LoadingUiState
+            is Complete -> this
+            is Success -> ShowPokemonsUiState(result.pokemons)
+            else -> throw UnsupportedReduceException(this, result)
+        }
+    }
+
+    private infix fun EmptyUiState.reduceWith(result: ListResult): ListUiState {
         return when (result) {
             LoadPokemonListResult.Error -> ErrorUiState
             InProgress -> LoadingUiState

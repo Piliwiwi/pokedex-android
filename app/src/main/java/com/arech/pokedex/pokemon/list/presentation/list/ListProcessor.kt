@@ -7,6 +7,8 @@ import com.arech.pokedex.pokemon.list.presentation.list.ListResult.LoadPokemonLi
 import com.arech.pokedex.pokemon.list.presentation.list.mapper.ListMapper
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Created by Pili Arancibia on 30-07-22.
@@ -19,7 +21,10 @@ class ListProcessor @Inject constructor(
 ) {
     fun actionProcessor(action: ListAction): Flow<ListResult> =
         when (action) {
-            LoadPokemonListAction -> loadPokemonProcessor()
+            LoadPokemonListAction -> merge(
+                obtainPokemonProcessor(),
+                loadPokemonProcessor()
+            )
         }
 
     private fun load(): Flow<ListResult> {
@@ -33,21 +38,22 @@ class ListProcessor @Inject constructor(
     }
 
     private fun loadPokemonProcessor() = flow<ListResult> {
-        repository.savePokemons()
         repository.getLocalPokemon().collect { response ->
             //response.collect {
             val pokemons = with(mapper) { response.toPresentation() }
-            emit(Success(pokemons))
+            if (pokemons.isNotEmpty()) emit(Success(pokemons))
             //}
         }
-    }.onStart {
-        emit(InProgress)
     }.catch {
         emit(Error)
     }.flowOn(executionThread.ioThread())
 
     private fun obtainPokemonProcessor() = flow<ListResult> {
-        repository.savePokemons()
+        repository.savePokemons().collect {
+            emit(InProgress)
+        }
+    }.onStart {
+        emit(InProgress)
     }.catch {
         emit(Error)
     }.flowOn(executionThread.ioThread())
